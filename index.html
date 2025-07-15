@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Malla Química y Farmacia - Ani</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      padding: 2rem;
+      background: #fff8f4;
+    }
+    h1 {
+      text-align: center;
+      color: #5e548e;
+    }
+    .malla {
+      display: grid;
+      grid-template-columns: repeat(11, 1fr);
+      gap: 10px;
+      margin-top: 2rem;
+    }
+    .semestre {
+      background: #ffffff;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .semestre h2 {
+      font-size: 16px;
+      text-align: center;
+      background: #9d8189;
+      color: white;
+      padding: 5px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+    .ramo {
+      margin: 6px 0;
+      padding: 5px;
+      border-left: 5px solid #ffd6d6;
+      background: #fff0f0;
+      border-radius: 5px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.3s, text-decoration 0.3s;
+    }
+    .ramo .sct {
+      font-size: 0.85em;
+      color: #555;
+    }
+    .aprobado {
+      background: #d2f8d2 !important;
+      border-left-color: #6fcf97;
+      text-decoration: line-through;
+    }
+    .cursando {
+      background: #fffacc !important;
+      border-left-color: #f2c94c;
+    }
+    .bloqueado {
+      background: #e0e0e0 !important;
+      border-left-color: #aaa;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+  <h1>Malla Curricular de Química y Farmacia</h1>
+  <div class="malla" id="malla">
+    <!-- Aquí irán los semestres con ramos, incluyendo ID únicos y requisitos -->
+  </div>
+  <script>
+    const estados = ['pendiente', 'cursando', 'aprobado'];
+
+    function actualizarEstado(ramo, nuevoEstado) {
+      ramo.dataset.estado = nuevoEstado;
+      estados.forEach(e => ramo.classList.remove(e));
+      ramo.classList.add(nuevoEstado);
+    }
+
+    function desbloquear() {
+      document.querySelectorAll('.ramo').forEach(ramo => {
+        const requisitos = ramo.dataset.requisitos;
+        if (!requisitos) {
+          ramo.classList.remove('bloqueado');
+          return;
+        }
+        const ids = requisitos.split(',');
+        const todosAprobados = ids.every(id => {
+          const req = document.getElementById(id.trim());
+          return req && req.dataset.estado === 'aprobado';
+        });
+        if (todosAprobados) {
+          ramo.classList.remove('bloqueado');
+        } else {
+          ramo.classList.add('bloqueado');
+        }
+      });
+    }
+
+    function configurarRamos() {
+      document.querySelectorAll('.ramo').forEach(ramo => {
+        if (!ramo.dataset.estado) ramo.dataset.estado = 'pendiente';
+        if (!ramo.classList.contains('bloqueado')) ramo.classList.add('bloqueado');
+        actualizarEstado(ramo, ramo.dataset.estado);
+
+        ramo.addEventListener('click', () => {
+          if (ramo.classList.contains('bloqueado')) return;
+          const i = (estados.indexOf(ramo.dataset.estado) + 1) % estados.length;
+          actualizarEstado(ramo, estados[i]);
+          desbloquear();
+        });
+      });
+    }
+
+    configurarRamos();
+    desbloquear();
+  </script>
+</body>
+</html>
